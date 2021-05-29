@@ -4,19 +4,19 @@ using Base_Mod;
 using HarmonyLib;
 using JetBrains.Annotations;
 
-namespace Wiki_Writer {
+namespace Only_One_Pickaxe {
     [UsedImplicitly]
     public class Plugin : BaseGameMod {
-        protected override      string             ModName    => "Only One Pickaxe";
+        protected override      string             ModName    => "Only-One-Pickaxe";
         protected override      bool               UseHarmony => true;
         public static readonly  GUID               PICKAXE     = GUID.Parse("c36fdd64ef80d8648803c6ca6463fd63");
         private static readonly GUID               COG_PICKAXE = GUID.Parse("06949b6bb6015ef4ea677324c635ddc1");
         public static           ToolItemDefinition cogPickaxeTool;
 
-        protected override void OnDataSetup() {
-            base.OnDataSetup();
-
+        public override void OnInitData() {
             cogPickaxeTool = GameResources.Instance.Tools.FirstOrDefault(def => def.AssetId == COG_PICKAXE);
+
+            base.OnInitData();
         }
     }
 

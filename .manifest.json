@@ -1,4 +1,7 @@
 {
     "LoadGroup": 0,
-    "Version": "1.0"
+    "Version": "1.0",
+    "UniqueModId": "Only-One-Pickaxe",
+    "Title": "Only One Pickaxe",
+    "MultiplayerMode": 2
 }

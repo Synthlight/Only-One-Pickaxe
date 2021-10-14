@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Reflection;
 using Base_Mod;
 using HarmonyLib;
@@ -21,22 +23,43 @@ namespace Only_One_Pickaxe {
 
     [HarmonyPatch]
     [UsedImplicitly]
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
+    [SuppressMessage("ReSharper", "RedundantAssignment")]
     public static class HideNormalPickaxeWhenYouHaveCogPickaxe {
         [HarmonyTargetMethod]
         [UsedImplicitly]
         public static MethodBase TargetMethod() {
-            return typeof(Tools).GetMethod(nameof(Tools.CanUseTool), BindingFlags.Public | BindingFlags.Instance);
+            return typeof(Tools).GetMethod("GetAvailableTools", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] {}, null);
+        }
+
+        private static ArrayList<ToolItemDefinition> GetAvailableTools(ref int m_availableToolsVersion, ref Inventory m_inventory, ref ArrayList<ToolItemDefinition> m_availableTools, ref ToolItemDefinition[] m_defaultTools) {
+            var hasCogPickaxe = m_inventory?.Contains(Plugin.cogPickaxeTool, 1) ?? false;
+
+            if (m_availableToolsVersion != m_inventory?.Version) {
+                m_availableTools.Clear();
+                foreach (var tool in m_defaultTools) {
+                    if (tool.AssetId == Plugin.PICKAXE && hasCogPickaxe) continue;
+                    if (!m_availableTools.Contains(tool)) m_availableTools.Add(tool);
+                }
+                for (var i = 0; i < m_inventory?.SlotCount; i++) {
+                    if (m_inventory.TryGetSlot(i, out var item) && item.Item is ToolItemDefinition toolItem) {
+                        if (toolItem.AssetId == Plugin.PICKAXE && hasCogPickaxe) continue;
+                        if (!m_availableTools.Contains(toolItem)) {
+                            m_availableTools.Add(toolItem);
+                        }
+                    }
+                }
+                m_availableTools.Sort();
+                m_availableToolsVersion = m_inventory?.Version ?? 0;
+            }
+            return m_availableTools;
         }
 
         [UsedImplicitly]
         [HarmonyPrefix]
-        public static bool Prefix(ref ToolItemDefinition tool, ref bool __result, ref Inventory ___m_inventory) {
-            if (tool?.AssetId == Plugin.PICKAXE && ___m_inventory?.Contains(Plugin.cogPickaxeTool, 1) == true) {
-                __result = false;
-                return false;
-            }
-
-            return true;
+        public static bool Prefix(ref ArrayList<ToolItemDefinition> __result, ref Inventory ___m_inventory, ref int ___m_availableToolsVersion, ref ArrayList<ToolItemDefinition> ___m_availableTools, ref ToolItemDefinition[] ___m_defaultTools) {
+            __result = GetAvailableTools(ref ___m_availableToolsVersion, ref ___m_inventory, ref ___m_availableTools, ref ___m_defaultTools);
+            return false;
         }
     }
 }

@@ -1,4 +1,8 @@
-﻿# Volcanoids Only One Pickaxe
+﻿# DEPRECATED
+
+THIS IS NO LONGER APPLICABLE WITH THE REDONE HOTBAR.
+
+# Volcanoids Only One Pickaxe
 Hides the default pickaxe when you have the cog pickaxe in your inventory.
 
 ![](.thumb.png)
